@@ -46,7 +46,7 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
         }
       } else {
         // player.enterFullscreen()
-        var el = <any> player.getFigure().parentElement;
+        var el = <any> player.getFigure().parentElement.parentElement;
         if (el.requestFullscreen) {
           el.requestFullscreen();
         } else if (el.webkitRequestFullscreen) {
