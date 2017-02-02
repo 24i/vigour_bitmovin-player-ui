@@ -33,9 +33,29 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
 
     self.onClick.subscribe(function() {
       if (player.isFullscreen()) {
-        player.exitFullscreen();
+        // player.exitFullscreen();
+        const d: any = document;
+        if (d.exitFullscreen) {
+          d.exitFullscreen();
+        } else if (d.webkitExitFullscreen) {
+          d.webkitExitFullscreen();
+        } else if (d.mozCancelFullScreen) {
+          d.mozCancelFullScreen();
+        } else if (d.msExitFullscreen) {
+          d.msExitFullscreen();
+        }
       } else {
-        player.enterFullscreen();
+        // player.enterFullscreen()
+        var el = <any> player.getFigure().parentElement;
+        if (el.requestFullscreen) {
+          el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        } else if (el.mozRequestFullScreen) {
+          el.mozRequestFullScreen();
+        } else if (el.msRequestFullscreen) {
+          el.msRequestFullscreen();
+        }
       }
     });
 
