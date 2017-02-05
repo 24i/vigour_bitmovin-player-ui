@@ -33,10 +33,10 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
 
     self.onClick.subscribe(function() {
       if (player.isFullscreen()) {
-        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_EXIT, {})
+        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_EXIT, { requested: true })
         // player.exitFullscreen();
       } else {
-        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_ENTER, {})
+        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_ENTER, { requested: true })
         // player.enterFullscreen()
       }
     });
