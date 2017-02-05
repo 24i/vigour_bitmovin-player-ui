@@ -32,17 +32,17 @@ export class HugePlaybackToggleButton extends PlaybackToggleButton {
       }
     };
 
-    let toggleFullscreen = function() {
-      if (player.isFullscreen()) {
-        player.exitFullscreen();
-      } else {
-        player.enterFullscreen();
-      }
-    };
+    // let toggleFullscreen = function() {
+    //   if (player.isFullscreen()) {
+    //     player.exitFullscreen();
+    //   } else {
+    //     player.enterFullscreen();
+    //   }
+    // };
 
-    let firstClick = true;
-    let clickTime = 0;
-    let doubleClickTime = 0;
+    // let firstClick = true;
+    // let clickTime = 0;
+    // let doubleClickTime = 0;
 
     /*
      * YouTube-style toggle button handling
@@ -61,39 +61,41 @@ export class HugePlaybackToggleButton extends PlaybackToggleButton {
      * if a double click happens.
      */
     self.onClick.subscribe(function() {
+        togglePlayback();
+
       // Directly start playback on first click of the button.
       // This is a required workaround for mobile browsers where video playback needs to be triggered directly
       // by the user. A deferred playback start through the timeout below is not considered as user action and
       // therefore ignored by mobile browsers.
-      if (firstClick) {
-        togglePlayback();
-        firstClick = false;
-        return;
-      }
-
-      let now = Date.now();
-
-      if (now - clickTime < 200) {
-        // We have a double click inside the 200ms interval, just toggle fullscreen mode
-        toggleFullscreen();
-        doubleClickTime = now;
-        return;
-      } else if (now - clickTime < 500) {
-        // We have a double click inside the 500ms interval, undo playback toggle and toggle fullscreen mode
-        toggleFullscreen();
-        togglePlayback();
-        doubleClickTime = now;
-        return;
-      }
-
-      clickTime = now;
-
-      setTimeout(function() {
-        if (Date.now() - doubleClickTime > 200) {
-          // No double click detected, so we toggle playback and wait what happens next
-          togglePlayback();
-        }
-      }, 200);
+      // if (firstClick) {
+      //   togglePlayback();
+      //   firstClick = false;
+      //   return;
+      // }
+      //
+      // let now = Date.now();
+      //
+      // if (now - clickTime < 200) {
+      //   // We have a double click inside the 200ms interval, just toggle fullscreen mode
+      //   toggleFullscreen();
+      //   doubleClickTime = now;
+      //   return;
+      // } else if (now - clickTime < 500) {
+      //   // We have a double click inside the 500ms interval, undo playback toggle and toggle fullscreen mode
+      //   toggleFullscreen();
+      //   togglePlayback();
+      //   doubleClickTime = now;
+      //   return;
+      // }
+      //
+      // clickTime = now;
+      //
+      // setTimeout(function() {
+      //   if (Date.now() - doubleClickTime > 200) {
+      //     // No double click detected, so we toggle playback and wait what happens next
+      //     togglePlayback();
+      //   }
+      // }, 200);
     });
 
     // Hide button while initializing a Cast session
