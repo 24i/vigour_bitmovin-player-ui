@@ -43,7 +43,6 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
         } else if (d.msExitFullscreen) {
           d.msExitFullscreen();
         }
-        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_EXIT, { requested: true })
       } else {
         var el = <any> player.getFigure().parentElement.parentElement;
         if (el.requestFullscreen) {
@@ -55,7 +54,6 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
         } else if (el.msRequestFullscreen) {
           el.msRequestFullscreen();
         }
-        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_ENTER, { requested: true })
       }
     });
 
