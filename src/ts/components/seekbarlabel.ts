@@ -12,7 +12,7 @@ export interface SeekBarLabelConfig extends ContainerConfig {
 }
 
 /**
- * A label for a {@link SeekBar} that can display the seek target time and a thumbnail.
+ * A label for a {@link SeekBar} that can display the seek target time, a thumbnail, and title (e.g. chapter title).
  */
 export class SeekBarLabel extends Container<SeekBarLabelConfig> {
 
@@ -47,33 +47,32 @@ export class SeekBarLabel extends Container<SeekBarLabelConfig> {
   configure(player: bitmovin.player.Player, uimanager: UIInstanceManager): void {
     super.configure(player, uimanager);
 
-    let self = this;
-
-    uimanager.onSeekPreview.subscribe(function(sender, args: SeekPreviewArgs) {
+    uimanager.onSeekPreview.subscribe((sender, args: SeekPreviewArgs) => {
       if (player.isLive()) {
         let time = player.getMaxTimeShift() - player.getMaxTimeShift() * (args.position / 100);
-        self.setTime(time);
+        this.setTime(time);
       } else {
-        let time = 0;
+        let percentage = 0;
         if (args.marker) {
-          time = args.marker.time;
-          self.setTitleText(args.marker.title);
+          percentage = args.marker.time;
+          this.setTitleText(args.marker.title);
         } else {
-          time = args.position;
-          self.setTitleText(null);
+          percentage = args.position;
+          this.setTitleText(null);
         }
-        self.setTime(player.getDuration() * (time / 100));
-        self.setThumbnail(player.getThumb(time));
+        let time = player.getDuration() * (percentage / 100);
+        this.setTime(time);
+        this.setThumbnail(player.getThumb(time));
       }
     });
 
-    let init = function() {
+    let init = () => {
       // Set time format depending on source duration
-      self.timeFormat = Math.abs(player.isLive() ? player.getMaxTimeShift() : player.getDuration()) >= 3600 ?
+      this.timeFormat = Math.abs(player.isLive() ? player.getMaxTimeShift() : player.getDuration()) >= 3600 ?
         StringUtils.FORMAT_HHMMSS : StringUtils.FORMAT_MMSS;
     };
 
-    player.addEventHandler(bitmovin.player.EVENT.ON_READY, init);
+    player.addEventHandler(player.EVENT.ON_READY, init);
     init();
   }
 

@@ -2,14 +2,14 @@ import {LabelConfig, Label} from './label';
 import {UIInstanceManager} from '../uimanager';
 import {StringUtils} from '../utils';
 
-export enum TimeLabelMode {
+export enum PlaybackTimeLabelMode {
   CurrentTime,
   TotalTime,
   CurrentAndTotalTime,
 }
 
 export interface PlaybackTimeLabelConfig extends LabelConfig {
-  timeLabelMode?: TimeLabelMode;
+  timeLabelMode?: PlaybackTimeLabelMode;
   hideInLivePlayback?: boolean;
 }
 
@@ -26,7 +26,7 @@ export class PlaybackTimeLabel extends Label<PlaybackTimeLabelConfig> {
 
     this.config = this.mergeConfig(config, <PlaybackTimeLabelConfig>{
       cssClass: 'ui-playbacktimelabel',
-      timeLabelMode: TimeLabelMode.CurrentAndTotalTime,
+      timeLabelMode: PlaybackTimeLabelMode.CurrentAndTotalTime,
       hideInLivePlayback: false,
     }, this.config);
   }
@@ -34,89 +34,88 @@ export class PlaybackTimeLabel extends Label<PlaybackTimeLabelConfig> {
   configure(player: bitmovin.player.Player, uimanager: UIInstanceManager): void {
     super.configure(player, uimanager);
 
-    let self = this;
-    let config = <PlaybackTimeLabelConfig>self.getConfig();
+    let config = <PlaybackTimeLabelConfig>this.getConfig();
     let live = false;
-    let liveCssClass = self.prefixCss('ui-playbacktimelabel-live');
-    let liveEdgeCssClass = self.prefixCss('ui-playbacktimelabel-live-edge');
+    let liveCssClass = this.prefixCss('ui-playbacktimelabel-live');
+    let liveEdgeCssClass = this.prefixCss('ui-playbacktimelabel-live-edge');
     let minWidth = 0;
 
-    let liveClickHandler = function() {
+    let liveClickHandler = () => {
       player.timeShift(0);
     };
 
-    let updateLiveState = function() {
+    let updateLiveState = () => {
       // Player is playing a live stream when the duration is infinite
       live = (player.getDuration() === Infinity);
 
       // Attach/detach live marker class
       if (live) {
-        self.getDomElement().addClass(liveCssClass);
-        self.setText('Live');
+        this.getDomElement().addClass(liveCssClass);
+        this.setText('Live');
         if (config.hideInLivePlayback) {
-          self.hide();
+          this.hide();
         }
-        self.onClick.subscribe(liveClickHandler);
+        this.onClick.subscribe(liveClickHandler);
         updateLiveTimeshiftState();
       } else {
-        self.getDomElement().removeClass(liveCssClass);
-        self.getDomElement().removeClass(liveEdgeCssClass);
-        self.show();
-        self.onClick.unsubscribe(liveClickHandler);
+        this.getDomElement().removeClass(liveCssClass);
+        this.getDomElement().removeClass(liveEdgeCssClass);
+        this.show();
+        this.onClick.unsubscribe(liveClickHandler);
       }
     };
 
-    let updateLiveTimeshiftState = function() {
+    let updateLiveTimeshiftState = () => {
       if (player.getTimeShift() === 0) {
-        self.getDomElement().addClass(liveEdgeCssClass);
+        this.getDomElement().addClass(liveEdgeCssClass);
       } else {
-        self.getDomElement().removeClass(liveEdgeCssClass);
+        this.getDomElement().removeClass(liveEdgeCssClass);
       }
     };
 
-    let playbackTimeHandler = function() {
+    let playbackTimeHandler = () => {
       if ((player.getDuration() === Infinity) !== live) {
         updateLiveState();
       }
 
       if (!live) {
-        self.setTime(player.getCurrentTime(), player.getDuration());
+        this.setTime(player.getCurrentTime(), player.getDuration());
       }
 
       // To avoid 'jumping' in the UI by varying label sizes due to non-monospaced fonts,
       // we gradually increase the min-width with the content to reach a stable size.
-      let width = self.getDomElement().width();
+      let width = this.getDomElement().width();
       if (width > minWidth) {
         minWidth = width;
-        self.getDomElement().css({
+        this.getDomElement().css({
           'min-width': minWidth + 'px'
         });
       }
     };
 
-    player.addEventHandler(bitmovin.player.EVENT.ON_TIME_CHANGED, playbackTimeHandler);
-    player.addEventHandler(bitmovin.player.EVENT.ON_SEEKED, playbackTimeHandler);
-    player.addEventHandler(bitmovin.player.EVENT.ON_CAST_TIME_UPDATED, playbackTimeHandler);
+    player.addEventHandler(player.EVENT.ON_TIME_CHANGED, playbackTimeHandler);
+    player.addEventHandler(player.EVENT.ON_SEEKED, playbackTimeHandler);
+    player.addEventHandler(player.EVENT.ON_CAST_TIME_UPDATED, playbackTimeHandler);
 
-    player.addEventHandler(bitmovin.player.EVENT.ON_TIME_SHIFT, updateLiveTimeshiftState);
-    player.addEventHandler(bitmovin.player.EVENT.ON_TIME_SHIFTED, updateLiveTimeshiftState);
+    player.addEventHandler(player.EVENT.ON_TIME_SHIFT, updateLiveTimeshiftState);
+    player.addEventHandler(player.EVENT.ON_TIME_SHIFTED, updateLiveTimeshiftState);
 
-    let init = function() {
+    let init = () => {
       // Reset min-width when a new source is ready (especially for switching VOD/Live modes where the label content
       // changes)
       minWidth = 0;
-      self.getDomElement().css({
+      this.getDomElement().css({
         'min-width': null
       });
 
       // Set time format depending on source duration
-      self.timeFormat = Math.abs(player.isLive() ? player.getMaxTimeShift() : player.getDuration()) >= 3600 ?
+      this.timeFormat = Math.abs(player.isLive() ? player.getMaxTimeShift() : player.getDuration()) >= 3600 ?
         StringUtils.FORMAT_HHMMSS : StringUtils.FORMAT_MMSS;
 
       // Update time after the format has been set
       playbackTimeHandler();
     };
-    player.addEventHandler(bitmovin.player.EVENT.ON_READY, init);
+    player.addEventHandler(player.EVENT.ON_READY, init);
 
     init();
   }
@@ -131,13 +130,13 @@ export class PlaybackTimeLabel extends Label<PlaybackTimeLabelConfig> {
     let totalTime = StringUtils.secondsToTime(durationSeconds, this.timeFormat);
 
     switch ((<PlaybackTimeLabelConfig>this.config).timeLabelMode) {
-      case TimeLabelMode.CurrentTime:
+      case PlaybackTimeLabelMode.CurrentTime:
         this.setText(`${currentTime}`);
         break;
-      case TimeLabelMode.TotalTime:
+      case PlaybackTimeLabelMode.TotalTime:
         this.setText(`${totalTime}`);
         break;
-      case TimeLabelMode.CurrentAndTotalTime:
+      case PlaybackTimeLabelMode.CurrentAndTotalTime:
         this.setText(`${currentTime} / ${totalTime}`);
         break;
     }

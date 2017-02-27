@@ -1,10 +1,29 @@
-# Bitmovin Player UI
+# Bitmovin Player UI [![npm version](https://badge.fury.io/js/bitmovin-player-ui.svg)](https://badge.fury.io/js/bitmovin-player-ui)
 The Bitmovin Adaptive Streaming Player UI
 
 Read more about the usage, as well as other important information on Bitmovin's Adaptive Streaming Player itself at https://bitmovin.com/ and https://bitmovin.com/player-documentation/.
 
-## Getting Started
+## Installation
 
+Beside the Git repository, the UI framework is also available through the following distribution channels:
+
+### CDN
+
+The UI framework and default skin bundled with the latest player release are always available via CDN. This is the recommended way if you just want to work with the predefined UI components. All components will be available in the `bitmovin.playerui` namespace.
+
+ * JavaScript library: `//bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer-ui.js` 
+ * CSS default skin: `//bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer-ui.css`
+
+### NPM
+
+The UI framework is also available in the NPM repository and comes with all source and distributable files, JavaScript modules and TypeScript type definitions.
+
+ * `npm install bitmovin-player-ui`
+
+
+## Getting Started with Development
+
+ 0. Clone Git repository
  1. Install node.js
  2. Install Gulp: `npm install --global gulp-cli`
  3. Install required npm packages: `npm install`
@@ -15,7 +34,7 @@ Read more about the usage, as well as other important information on Bitmovin's 
   * `gulp lint` to lint TypeScript and SASS files
   * `gulp build-prod` to build project with minified files into `dist` directory
   
-To just take a look at the project, also run `gulp serve`.
+To just take a look at the project, also run `gulp serve`. For changes, check our [change log](CHANGELOG.md).
 
 ## Introduction
 
@@ -67,26 +86,26 @@ A simple example on how to create a custom UI with our default skin that only co
 
 ```js
 // Definition of the UI structure
-var mySimpleUi = new UIContainer({
+var mySimpleUi = new bitmovin.playerui.UIContainer({
   components: [
-    new PlaybackToggleOverlay()
+    new bitmovin.playerui.PlaybackToggleOverlay()
   ],
   cssClasses: ['ui-skin-modern']
 });
 
 bitmovin.player('player-id').setup(config).then(function (player) {
   // Add the UI to the player
-  var myUiManager = new bitmovin.playerui.UIManager(player, mySimpleUi, null);
+  var myUiManager = new bitmovin.playerui.UIManager(player, mySimpleUi);
 });
 ```
 
 ### UIManager
 
-The `UIManager` manages UI instances and is used to add and remove UIs to/from the player. To add a UI to the player, construct a new instance and pass the `player` object, a UI structure (`UIContainer`), a second UI structure to be displayed during ads or `null`, and an optional configuration object. To remove a UI from the player, just call `release()` on your UIManager instance.
+The `UIManager` manages UI instances and is used to add and remove UIs to/from the player. To add a UI to the player, construct a new instance and pass the `player` object, a UI structure (`UIContainer`) or a list of UI structures with conditions (`UIVariant[]`), and an optional configuration object. To remove a UI from the player, just call `release()` on your UIManager instance.
 
 ```js
 // Add UI (e.g. at player initialization)
-var myUiManager = new bitmovin.playerui.UIManager(player, mySimpleUI, null);
+var myUiManager = new bitmovin.playerui.UIManager(player, mySimpleUI);
 
 // Remove UI (e.g. at player destruction)
 myUiManager.release();
@@ -98,25 +117,46 @@ Here is an example on how to display a special UI in fullscreen mode:
 
 ```js
 bitmovin.player('player-id').setup(config).then(function (player) {
-  var myUiManager = new bitmovin.playerui.UIManager(player, myWindowUi, null);
+  var myUiManager = new bitmovin.playerui.UIManager(player, myWindowUi);
   
-  player.addEventHandler(bitmovin.player.EVENT.ON_FULLSCREEN_ENTER, function () {
+  player.addEventHandler(player.EVENT.ON_FULLSCREEN_ENTER, function () {
     myUiManager.release();
-    myUiManager = new bitmovin.playerui.UIManager(player, myFullscreenUi, null);
+    myUiManager = new bitmovin.playerui.UIManager(player, myFullscreenUi);
   });
   
-  player.addEventHandler(bitmovin.player.EVENT.ON_FULLSCREEN_EXIT, function () {
+  player.addEventHandler(player.EVENT.ON_FULLSCREEN_EXIT, function () {
     myUiManager.release();
-    myUiManager = new bitmovin.playerui.UIManager(player, myWindowUi, null);
+    myUiManager = new bitmovin.playerui.UIManager(player, myWindowUi);
   });
 });
 ```
+
+Alternatively, you can let the `UIManager` handle switching between different UIs by passing in multiple `UIVariant`s:
+
+```js
+bitmovin.player('player-id').setup(config).then(function (player) {
+  var myUiManager = new bitmovin.playerui.UIManager(player, [{
+    // Display my fullscreen UI under the condition that the player is in fullscreen mode
+    ui: myFullscreenUi,
+    condition: function(context) {
+      return context.isFullscreen;
+    }
+  }, {
+    // Display my window UI in all other cases
+    ui: myWindowUi
+  }]);
+});
+```
+
+There are various conditions upon which the `UIManager` can automatically switch between different UIs, e.g. ad playback and player size.
+
 #### Factory
 
 `UIManager.Factory` provides a few predefined UI structures and styles, e.g.:
 
  * `buildDefaultUI`: The default UI as used by the player by default
  * `buildDefaultCastReceiverUI`: A light UI specifically for Google Cast receivers
+ * `buildDefaultSmallScreenUI`: A light UI specifically for small handheld devices
  * `buildLegacyUI`: ported legacy UI style from player <= version 6
 
 You can easily test and switch between these UIs in the UI playground.
@@ -136,10 +176,10 @@ There is currently no way to change these configuration values on an existing UI
 The following example creates a very basic UI structure with only two text labels:
 
 ```js
-var myUi = new UIContainer({
+var myUi = new bitmovin.playerui.UIContainer({
   components: [
-    new Label({ text: "A label" }),
-    new Label({ text: "A hidden label", hidden: true })
+    new bitmovin.playerui.Label({ text: "A label" }),
+    new bitmovin.playerui.Label({ text: "A hidden label", hidden: true })
   ],
   cssClasses: ['ui-skin-modern']
 });
