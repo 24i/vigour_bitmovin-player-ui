@@ -58,7 +58,7 @@ export class HugePlaybackToggleButton extends PlaybackToggleButton {
      * In the end, this method basically introduces a 200ms observing interval in which playback changes are prevented
      * if a double click happens.
      */
-    self.onClick.subscribe(() => {
+    this.onClick.subscribe(() => {
         togglePlayback();
 
       // Directly start playback on first click of the button.
