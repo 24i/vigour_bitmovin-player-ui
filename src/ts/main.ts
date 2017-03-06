@@ -42,9 +42,7 @@ import {CastUIContainer} from './components/castuicontainer';
 import {PlaybackToggleOverlay} from './components/playbacktoggleoverlay';
 import {CloseButton} from './components/closebutton';
 import {MetadataLabel, MetadataLabelContent} from './components/metadatalabel';
-import {AirPlayToggleButton} from './components/airplaytogglebutton';
 import {VolumeSlider} from './components/volumeslider';
-import {PictureInPictureToggleButton} from './components/pictureinpicturetogglebutton';
 import {Spacer} from './components/spacer';
 import {ArrayUtils, StringUtils, PlayerUtils, UIUtils} from './utils';
 
@@ -86,7 +84,6 @@ if (typeof Object.assign !== 'function') {
   AdClickOverlay,
   AdMessageLabel,
   AdSkipButton,
-  AirPlayToggleButton,
   AudioQualitySelectBox,
   AudioTrackSelectBox,
   BufferingOverlay,
@@ -106,7 +103,6 @@ if (typeof Object.assign !== 'function') {
   Label,
   MetadataLabel,
   MetadataLabelContent,
-  PictureInPictureToggleButton,
   PlaybackSpeedSelectBox,
   PlaybackTimeLabel,
   PlaybackTimeLabelMode,
