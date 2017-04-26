@@ -22,9 +22,7 @@ export class HugePlaybackToggleButton extends PlaybackToggleButton {
     // Update button state through API events
     super.configure(player, uimanager, false);
 
-    let self = this;
-
-    let togglePlayback = function() {
+    let togglePlayback = () => {
       if (player.isPlaying()) {
         player.pause('ui-overlay');
       } else {
@@ -60,7 +58,7 @@ export class HugePlaybackToggleButton extends PlaybackToggleButton {
      * In the end, this method basically introduces a 200ms observing interval in which playback changes are prevented
      * if a double click happens.
      */
-    self.onClick.subscribe(function() {
+    this.onClick.subscribe(function() {
         togglePlayback();
 
       // Directly start playback on first click of the button.
@@ -98,19 +96,24 @@ export class HugePlaybackToggleButton extends PlaybackToggleButton {
       // }, 200);
     });
 
+    // player.addEventHandler(player.EVENT.ON_PLAY, () => {
+    //   // Playback has really started, we can disable the flag to switch to normal toggle button handling
+    //   firstPlay = false;
+    // });
+
     // Hide button while initializing a Cast session
-    let castInitializationHandler = function(event: PlayerEvent) {
-      if (event.type === bitmovin.player.EVENT.ON_CAST_STARTED) {
+    let castInitializationHandler = (event: PlayerEvent) => {
+      if (event.type === player.EVENT.ON_CAST_STARTED) {
         // Hide button when session is being initialized
-        self.hide();
+        this.hide();
       } else {
         // Show button when session is established or initialization was aborted
-        self.show();
+        this.show();
       }
     };
-    player.addEventHandler(bitmovin.player.EVENT.ON_CAST_START, castInitializationHandler);
-    player.addEventHandler(bitmovin.player.EVENT.ON_CAST_STARTED, castInitializationHandler);
-    player.addEventHandler(bitmovin.player.EVENT.ON_CAST_STOPPED, castInitializationHandler);
+    player.addEventHandler(player.EVENT.ON_CAST_START, castInitializationHandler);
+    player.addEventHandler(player.EVENT.ON_CAST_STARTED, castInitializationHandler);
+    player.addEventHandler(player.EVENT.ON_CAST_STOPPED, castInitializationHandler);
   }
 
   protected toDomElement(): DOM {

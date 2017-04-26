@@ -4,6 +4,9 @@
   ],
   "compilerOptions": {
     "noImplicitAny": true,
-    "target": "es5"
+    "target": "es5",
+    "declaration": true,
+    "outDir": "dist/js/framework",
+    "lib": ["es6", "dom", "scripthost"]
   }
 }

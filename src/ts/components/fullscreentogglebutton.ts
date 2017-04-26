@@ -18,20 +18,18 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
   configure(player: bitmovin.player.Player, uimanager: UIInstanceManager): void {
     super.configure(player, uimanager);
 
-    let self = this;
-
-    let fullscreenStateHandler = function() {
+    let fullscreenStateHandler = () => {
       if (player.isFullscreen()) {
-        self.on();
+        this.on();
       } else {
-        self.off();
+        this.off();
       }
     };
 
-    player.addEventHandler(bitmovin.player.EVENT.ON_FULLSCREEN_ENTER, fullscreenStateHandler);
-    player.addEventHandler(bitmovin.player.EVENT.ON_FULLSCREEN_EXIT, fullscreenStateHandler);
+    player.addEventHandler(player.EVENT.ON_FULLSCREEN_ENTER, fullscreenStateHandler);
+    player.addEventHandler(player.EVENT.ON_FULLSCREEN_EXIT, fullscreenStateHandler);
 
-    self.onClick.subscribe(function() {
+    this.onClick.subscribe(() => {
       if (player.isFullscreen()) {
         const d: any = document;
         if (d.exitFullscreen) {
@@ -43,7 +41,7 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
         } else if (d.msExitFullscreen) {
           d.msExitFullscreen();
         }
-        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_EXIT, { requested: true })
+        player.fireEvent(player.EVENT.ON_FULLSCREEN_EXIT, { requested: true })
       } else {
         var el = <any> player.getFigure().parentElement.parentElement;
         if (el.requestFullscreen) {
@@ -55,7 +53,7 @@ export class FullscreenToggleButton extends ToggleButton<ToggleButtonConfig> {
         } else if (el.msRequestFullscreen) {
           el.msRequestFullscreen();
         }
-        player.fireEvent(bitmovin.player.EVENT.ON_FULLSCREEN_ENTER, { requested: true })
+        player.fireEvent(player.EVENT.ON_FULLSCREEN_ENTER, { requested: true })
       }
     });
 
